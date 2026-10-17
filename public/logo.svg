@@ -1,0 +1,19 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="lg-ring" x1="0" y1="0" x2="120" y2="120">
+      <stop offset="0%" stop-color="#33d6c2"/>
+      <stop offset="100%" stop-color="#f6c453"/>
+    </linearGradient>
+    <linearGradient id="lg-fill" x1="10" y1="10" x2="110" y2="110">
+      <stop offset="0%" stop-color="#111b3a"/>
+      <stop offset="100%" stop-color="#070c1b"/>
+    </linearGradient>
+  </defs>
+  <path d="M60 6 L108 22 V58c0 30-20 48-48 56C32 106 12 88 12 58V22L60 6Z" fill="url(#lg-fill)" stroke="url(#lg-ring)" stroke-width="4"/>
+  <rect x="30" y="66" width="10" height="20" rx="2.5" fill="#33d6c2"/>
+  <rect x="45" y="54" width="10" height="32" rx="2.5" fill="#7ef0e0"/>
+  <rect x="60" y="42" width="10" height="44" rx="2.5" fill="#f6c453"/>
+  <circle cx="76" cy="44" r="14" stroke="#f6c453" stroke-width="5" fill="rgba(246,196,83,0.12)"/>
+  <line x1="86" y1="55" x2="98" y2="67" stroke="#f6c453" stroke-width="6" stroke-linecap="round"/>
+  <path d="M34 30 L44 30 L52 44 L60 30 L70 30 L70 46 L64 46 L64 38 L58 48 L52 48 L46 38 L46 46 L40 46 L40 30" stroke="#ffffff" stroke-width="2.4" fill="none" stroke-linejoin="round" opacity="0.92"/>
+</svg>
