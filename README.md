@@ -20,25 +20,16 @@
 | **Payroll** | Payroll register with automatic PAYE/NSSA/AIDS computation, payslip PDF export |
 | **Departments** | Marketing · IT · HR · Accounts · Procurement · Cash Office · Security — missions, KPIs, staff, task boards, workload charts |
 | **Fraud Monitor (ML)** | Isolation-forest ensemble (24 trees, 7 features) + z-score outliers + forensic heuristics (round amounts, weekend postings, duplicates, unmatched bank items) — live rescoring, severity ranking, disposition workflow |
-| **Sophie AI** | Finance-aware chat assistant grounded in your live books — P&L, cash, equity, tax, receivables, fraud, quick maths. Optional GPT upgrade via `OPENAI_API_KEY` |
+| **Sophie AI & Voice** | Conversational finance assistant grounded in your live books — monthly earnings/spending, top debtors, affordability checks, PAYE/NSSA calculators, persistent memory (`call me T`, `remember that ...`), live mic dictation, Whisper audio notes (`/api/transcribe`), hands-free browser calls, and Twilio Voice phone webhooks (`/api/sophie/voice`) |
 | **WhatsApp** | One-click messages to **+263 782 514 255** — invoices, reminders, weekly digest, tax alerts. Fully automated delivery via Twilio when credentials are added |
 | **Reports & I/O** | Every dataset → CSV & branded PDF; CSV import for income/expenses/bank statements; JSON backup/restore |
 | **Auth & Users** | Beautiful login page, role-based users (admin/manager/staff) across all departments, HMAC-signed httpOnly sessions |
 
 ---
 
-## 🔐 Demo login credentials
+## 🔐 Authentication & Access
 
-| Role | Email | Password |
-| --- | --- | --- |
-| **Admin — Tatenda Makuvaza** | `tatenda@maxhals.co.zw` | `Admin@2026` |
-| Finance Manager | `rumbi@maxhals.co.zw` | `Finance@26` |
-| Marketing | `tapiwa@maxhals.co.zw` | `Marketing@26` |
-| IT | `farai@maxhals.co.zw` | `Tech@2026` |
-| HR | `grace@maxhals.co.zw` | `People@26` |
-| Procurement | `simba@maxhals.co.zw` | `Supply@26` |
-| Cash Office | `nyasha@maxhals.co.zw` | `Cash@2026` |
-| Security | `bonnie@maxhals.co.zw` | `Secure@26` |
+Access is restricted to authorised Maxhals Forensics accounts (`admin`, `manager` and `staff` roles across all seven departments). Sign in at `/login` using your assigned `@maxhals.co.zw` credentials, or manage users from **Settings → Users & access**.
 
 ---
 
@@ -76,8 +67,10 @@ vercel --prod
 | Variable | Purpose |
 | --- | --- |
 | `AUTH_SECRET` | HMAC secret for session cookies (set to a random string in production) |
-| `OPENAI_API_KEY` | Upgrades Sophie to GPT-quality conversation (falls back to the local finance engine) |
-| `OPENAI_MODEL` | Model name (default `gpt-4o-mini`) |
+| `OPENAI_API_KEY` | Upgrades Sophie to GPT-quality conversation and enables Whisper audio transcription at `/api/transcribe` |
+| `OPENAI_MODEL` | Chat model name (default `gpt-4o-mini`) |
+| `OPENAI_TRANSCRIBE_MODEL` | Audio transcription model name (default `whisper-1`) |
+| `PUBLIC_BASE_URL` | Optional canonical base URL for Twilio Voice webhook callbacks (`/api/sophie/voice`) |
 | `TWILIO_ACCOUNT_SID` | Enables automated WhatsApp delivery |
 | `TWILIO_AUTH_TOKEN` | Twilio auth token |
 | `TWILIO_WHATSAPP_FROM` | Your Twilio WhatsApp sender (`whatsapp:+1415…`) |
@@ -99,9 +92,15 @@ Without Twilio, every WhatsApp button opens `wa.me/263782514255` with the messag
 
 Scores recompute automatically whenever the books change. High-risk flags surface on the dashboard and in Sophie.
 
-## 🧠 Sophie
+## 🧠 Sophie — Conversation, Learning & Voice Calls
 
-Ask anything: *"How is my profit this year?" · "What do I owe ZIMRA?" · "Show overdue invoices" · "Any fraud alerts?" · "15% VAT on 4500"*. Sophie reads your live ledger, statements, tax register and fraud flags. Add `OPENAI_API_KEY` for free-form GPT conversation on top.
+- **Natural conversation & multi-turn context**: handles greetings, acknowledgements, thanks, apologies, goodbyes, mood check-ins (*"I'm tired"*, *"I'm worried about money"*), identity questions (*"What is my name?"*, *"What are you doing?"*), and follow-ups (*"tell me more"*, *"why?"*).
+- **Persistent learning & memory**: teach Sophie your preferences (`call me T`, `be more formal`, `remember that I bank with CBZ`, `learn: credit policy = 30-day terms`). Ask **"What do you remember?"** or reset with **"Forget everything"**. Memory persists in the browser store and survives *"Erase ALL data — start clean books"*.
+- **Finance intelligence**: monthly earnings/spending (*"What did I earn last month?"*, *"What did I spend in September?"*), top debtor ranking (*"Which client owes me the most?"*), liabilities (*"How much do I owe?"*), affordability (*"Can I afford a laptop for 2500?"*), PAYE/NSSA calculators, net worth, and arithmetic anywhere.
+- **Audio input & voice calls**:
+  - Live microphone dictation in the composer + audio note uploads transcribed via Whisper at `POST /api/transcribe`.
+  - **Call Sophie** (hands-free browser voice loop) and **Sophie, call me** (simulated incoming call with ringtone, Answer/Decline, mute, speaker toggle, live captions and typed fallback).
+  - **Twilio Voice webhooks**: point your Twilio number's Voice webhook at `https://<your-app>/api/sophie/voice` (follow-up turns handled at `/api/sophie/voice/respond`).
 
 ## 🧾 Zimbabwe statutory engines
 
