@@ -16,6 +16,7 @@ export default function IncomePage() {
   const data = useStore((s) => s.data);
   const update = useStore((s) => s.update);
   const pnl = computePnL(data);
+  const [clientForm, setClientForm] = React.useState({name:"",email:"",phone:"",address:"",stream:"forensic" as IncomeStream});
   const [stream, setStream] = React.useState<"all" | IncomeStream>("all");
   const [showForm, setShowForm] = React.useState(false);
   const [form, setForm] = React.useState({ date: "2026-10-17", stream: "forensic" as IncomeStream, description: "", client: "", amount: 0 });
@@ -82,6 +83,7 @@ export default function IncomePage() {
         }
       />
 
+      <Card className="my-5"><h3 className="mb-3 text-sm font-bold">Add client</h3><div className="grid gap-3 sm:grid-cols-6"><input className="input" placeholder="Client name" value={clientForm.name} onChange={e=>setClientForm({...clientForm,name:e.target.value})}/><input className="input" placeholder="Email" value={clientForm.email} onChange={e=>setClientForm({...clientForm,email:e.target.value})}/><input className="input" placeholder="Phone" value={clientForm.phone} onChange={e=>setClientForm({...clientForm,phone:e.target.value})}/><input className="input" placeholder="Address" value={clientForm.address} onChange={e=>setClientForm({...clientForm,address:e.target.value})}/><select className="input" value={clientForm.stream} onChange={e=>setClientForm({...clientForm,stream:e.target.value as IncomeStream})}>{Object.entries(STREAM_LABELS).map(([k,v])=><option key={k} value={k}>{v}</option>)}</select><button className="btn-primary" disabled={!clientForm.name} onClick={()=>{update(d=>d.clients.push({id:`CLI-${Date.now()}`,...clientForm}));setClientForm({...clientForm,name:"",email:"",phone:"",address:""});}}>Add client</button></div></Card>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {(["salary", "forensic", "seminar"] as IncomeStream[]).map((s) => {
           const Icon = ICONS[s];

@@ -9,6 +9,8 @@ export default function SettingsPage() {
   const data = useStore((s) => s.data);
   const update = useStore((s) => s.update);
   const resetData = useStore((s) => s.resetData);
+  const eraseTransactions = useStore((s) => s.eraseTransactions);
+  const [eraseText, setEraseText] = React.useState("");
   const [form, setForm] = React.useState<Settings>(JSON.parse(JSON.stringify(data.settings)));
   const [saved, setSaved] = React.useState(false);
 
@@ -184,7 +186,7 @@ export default function SettingsPage() {
           </div>
           <p className="text-xs text-slate-500">
             All data lives encrypted-in-place in your browser store (no server database required — deploys cleanly on Vercel free tier).
-            Reset restores the full demo dataset with 2026 books.
+            Reset restores the full demo dataset. Erase removes all sample business records while preserving logins and your company profile.
           </p>
           <div className="mt-4 flex gap-2.5">
             <button
@@ -195,6 +197,8 @@ export default function SettingsPage() {
             >
               <RotateCcw size={15} /> Reset demo data
             </button>
+            <button onClick={() => { if (eraseText === "ERASE" && confirm("Permanently erase all business records? Logins and company profile will remain.")) { eraseTransactions(); setEraseText(""); } }} disabled={eraseText !== "ERASE"} className="btn-ghost text-rose-600 disabled:opacity-40">Erase ALL data — start clean books</button>
+            <input aria-label="Type ERASE to confirm" placeholder="Type ERASE to enable" value={eraseText} onChange={(e) => setEraseText(e.target.value)} className="input max-w-48" />
             <button
               onClick={() => {
                 downloadJSON(data, "maxhals-backup.json");

@@ -15,6 +15,7 @@ interface AppState {
   retrainFraud: () => FraudFlag[];
   addChat: (m: SophieMessage) => void;
   resetData: () => void;
+  eraseTransactions: () => void;
 }
 
 export const useStore = create<AppState>()(
@@ -50,7 +51,14 @@ export const useStore = create<AppState>()(
         get().update((d) => {
           d.chat.push(m);
         }),
-      resetData: () => set({ data: buildSeedData() })
+      resetData: () => set({ data: buildSeedData() }),
+      eraseTransactions: () => get().update((d) => {
+        d.clients = []; d.income = []; d.expenses = []; d.invoices = [];
+        d.bankTxns = []; d.journal = []; d.taxes = []; d.payroll = [];
+        d.equity = []; d.fraudFlags = []; d.tasks = []; d.chat = [];
+        d.bankAccounts = [];
+        d.settings.nextInvoiceNo = 1;
+      })
     }),
     {
       name: "maxhals-forensics-v1",

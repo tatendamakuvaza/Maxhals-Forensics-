@@ -10,6 +10,11 @@ import { BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContaine
 
 export default function PayrollPage() {
   const data = useStore((s) => s.data);
+  const update = useStore((s) => s.update);
+  const [employee, setEmployee] = React.useState({ name: "", position: "", department: "Accounts" as (typeof data.payroll)[number]["department"], gross: 0 });
+  const nssaCalc = calcNssa(employee.gross, data.settings.nssaEmployeeRate, data.settings.nssaEmployerRate, data.settings.nssaCeiling);
+  const payeCalc = calcPaye(employee.gross);
+  const aidsCalc = calcAidsLevy(payeCalc);
   const gross = data.payroll.reduce((a, b) => a + b.gross, 0);
   const paye = data.payroll.reduce((a, b) => a + b.paye, 0);
   const nssaE = data.payroll.reduce((a, b) => a + b.nssaEmployee, 0);
@@ -61,6 +66,7 @@ export default function PayrollPage() {
         }
       />
 
+      <Card className="my-5"><h3 className="mb-3 text-sm font-bold">Add employee · live statutory calculation</h3><div className="grid gap-3 sm:grid-cols-5"><input className="input" placeholder="Name" value={employee.name} onChange={e=>setEmployee({...employee,name:e.target.value})}/><input className="input" placeholder="Position" value={employee.position} onChange={e=>setEmployee({...employee,position:e.target.value})}/><select className="input" value={employee.department} onChange={e=>setEmployee({...employee,department:e.target.value as typeof employee.department})}>{["Marketing","IT","HR","Accounts","Procurement","Cash Office","Security"].map(x=><option key={x}>{x}</option>)}</select><input className="input" type="number" min="0" placeholder="Monthly gross USD" value={employee.gross || ""} onChange={e=>setEmployee({...employee,gross:Number(e.target.value)})}/><button className="btn-primary" disabled={!employee.name || employee.gross<=0} onClick={()=>{update(d=>{d.payroll.push({id:`EMP-${Date.now()}`,name:employee.name,position:employee.position,department:employee.department,gross:employee.gross,allowances:0,nssaEmployee:nssaCalc.employee,paye:payeCalc,aidsLevy:aidsCalc,net:employee.gross-nssaCalc.employee-payeCalc-aidsCalc,nssaEmployer:nssaCalc.employer});});setEmployee({...employee,name:"",position:"",gross:0});}}>Add employee</button></div><p className="mt-3 text-xs text-slate-600">Preview: PAYE {fmtUSD(payeCalc)} · NSSA employee {fmtUSD(nssaCalc.employee)} / employer {fmtUSD(nssaCalc.employer)} · AIDS levy {fmtUSD(aidsCalc)} · net {fmtUSD(employee.gross-nssaCalc.employee-payeCalc-aidsCalc)}</p></Card>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Gross payroll (monthly)" value={fmtUSD(gross, 0)} delta={`${data.payroll.length} employees`} icon={<Users size={20} />} />
         <StatCard label="PAYE withheld" value={fmtUSD(paye, 0)} hint="remit by the 15th" icon={<Calculator size={20} />} />

@@ -18,6 +18,7 @@ export default function TaxesPage() {
   const data = useStore((s) => s.data);
   const update = useStore((s) => s.update);
   const [tab, setTab] = React.useState<TaxType>("VAT");
+  const [obligation, setObligation] = React.useState({type:"VAT" as TaxType,period:"2026-10",dueDate:"2026-11-15",amount:0,notes:""});
 
   const salesNet = data.income.reduce((a, b) => a + b.amount, 0);
   const purchasesNet = data.expenses.reduce((a, b) => a + b.amount, 0);
@@ -87,6 +88,7 @@ export default function TaxesPage() {
         />
       </div>
 
+      <Card className="mt-5"><h3 className="mb-3 text-sm font-bold">Record tax obligation</h3><div className="grid gap-3 sm:grid-cols-5"><select className="input" value={obligation.type} onChange={e=>setObligation({...obligation,type:e.target.value as TaxType})}>{["VAT","NSSA","PAYE"].map(x=><option key={x}>{x}</option>)}</select><input className="input" type="month" value={obligation.period} onChange={e=>setObligation({...obligation,period:e.target.value})}/><input className="input" type="date" value={obligation.dueDate} onChange={e=>setObligation({...obligation,dueDate:e.target.value})}/><input className="input" type="number" min="0" placeholder="Amount USD" value={obligation.amount||""} onChange={e=>setObligation({...obligation,amount:Number(e.target.value)})}/><button className="btn-primary" disabled={obligation.amount<=0} onClick={()=>{update(d=>d.taxes.push({id:`TAX-${Date.now()}`,...obligation,paidAmount:0}));setObligation({...obligation,amount:0});}}>Record obligation</button></div><input className="input mt-3" placeholder="Notes (optional)" value={obligation.notes} onChange={e=>setObligation({...obligation,notes:e.target.value})}/></Card>
       <div className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-3">
         <Card className="xl:col-span-2">
           <div className="mb-4 flex flex-wrap gap-2">

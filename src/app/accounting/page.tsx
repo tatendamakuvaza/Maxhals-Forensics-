@@ -18,6 +18,7 @@ export default function AccountingPage() {
   ]);
   const [narration, setNarration] = React.useState("");
   const [jDate, setJDate] = React.useState("2026-10-17");
+  const [equityForm, setEquityForm] = React.useState({date:"2026-10-17",label:"",amount:0,type:"capital" as "capital"|"drawing"|"adjustment"|"profit"});
 
   const balances = accountBalances(data);
   const active = balances.filter((b) => b.debit !== 0 || b.credit !== 0);
@@ -67,6 +68,7 @@ export default function AccountingPage() {
         }
       />
 
+      <Card className="my-5"><h3 className="mb-3 text-sm font-bold">Record equity movement</h3><div className="grid gap-3 sm:grid-cols-5"><input className="input" type="date" value={equityForm.date} onChange={e=>setEquityForm({...equityForm,date:e.target.value})}/><input className="input" placeholder="Description" value={equityForm.label} onChange={e=>setEquityForm({...equityForm,label:e.target.value})}/><select className="input" value={equityForm.type} onChange={e=>setEquityForm({...equityForm,type:e.target.value as typeof equityForm.type})}>{["capital","drawing","adjustment","profit"].map(x=><option key={x}>{x}</option>)}</select><input className="input" type="number" placeholder="Amount USD" value={equityForm.amount||""} onChange={e=>setEquityForm({...equityForm,amount:Number(e.target.value)})}/><button className="btn-primary" disabled={!equityForm.label||equityForm.amount<=0} onClick={()=>{update(d=>d.equity.push({id:`EQ-${Date.now()}`,...equityForm,amount:equityForm.type==="drawing"?-Math.abs(equityForm.amount):Math.abs(equityForm.amount)}));setEquityForm({...equityForm,label:"",amount:0});}}>Record movement</button></div></Card>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard label="Total debits" value={fmtUSD(totalDebit)} icon={<BookOpen size={20} />} />
         <StatCard label="Total credits" value={fmtUSD(totalCredit)} icon={<Scale size={20} />} />
