@@ -53,11 +53,25 @@ export const useStore = create<AppState>()(
         }),
       resetData: () => set({ data: buildSeedData() }),
       eraseTransactions: () => get().update((d) => {
-        d.clients = []; d.income = []; d.expenses = []; d.invoices = [];
-        d.bankTxns = []; d.journal = []; d.taxes = []; d.payroll = [];
-        d.equity = []; d.fraudFlags = []; d.tasks = []; d.chat = [];
+        // Keep the people who can sign in and the company profile; clear every
+        // business record so the dashboard and all statements open at zero.
+        const users = d.users;
+        const settings = d.settings;
+        d.clients = [];
+        d.income = [];
+        d.expenses = [];
+        d.invoices = [];
+        d.bankTxns = [];
+        d.journal = [];
+        d.taxes = [];
+        d.payroll = [];
+        d.equity = [];
+        d.fraudFlags = [];
+        d.tasks = [];
+        d.chat = [];
         d.bankAccounts = [];
-        d.settings.nextInvoiceNo = 1;
+        d.users = users;
+        d.settings = { ...settings, nextInvoiceNo: 1 };
       })
     }),
     {

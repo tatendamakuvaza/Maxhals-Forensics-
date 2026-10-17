@@ -6,22 +6,11 @@ import { Eye, EyeOff, Lock, Mail, ShieldCheck, Sparkles, BarChart3, FileSpreadsh
 import Logo from "@/components/Logo";
 import { useStore } from "@/lib/store";
 
-const DEMO = [
-  { label: "Admin — Tatenda Makuvaza", email: "tatenda@maxhals.co.zw", pass: "Admin@2026" },
-  { label: "Finance Manager", email: "rumbi@maxhals.co.zw", pass: "Finance@26" },
-  { label: "Marketing", email: "tapiwa@maxhals.co.zw", pass: "Marketing@26" },
-  { label: "IT", email: "farai@maxhals.co.zw", pass: "Tech@2026" },
-  { label: "HR", email: "grace@maxhals.co.zw", pass: "People@26" },
-  { label: "Procurement", email: "simba@maxhals.co.zw", pass: "Supply@26" },
-  { label: "Cash Office", email: "nyasha@maxhals.co.zw", pass: "Cash@2026" },
-  { label: "Security", email: "bonnie@maxhals.co.zw", pass: "Secure@26" }
-];
-
 export default function LoginPage() {
   const router = useRouter();
   const login = useStore((s) => s.login);
-  const [email, setEmail] = React.useState("tatenda@maxhals.co.zw");
-  const [password, setPassword] = React.useState("Admin@2026");
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
   const [show, setShow] = React.useState(false);
   const [err, setErr] = React.useState("");
   const [busy, setBusy] = React.useState(false);
@@ -44,7 +33,7 @@ export default function LoginPage() {
     const ok = login(email, password);
     setBusy(false);
     if (ok) router.replace("/");
-    else setErr("Invalid email or password. Use one of the demo accounts listed.");
+    else setErr("Invalid email or password. Contact your administrator if you need access.");
   };
 
   return (
@@ -133,6 +122,7 @@ export default function LoginPage() {
                 <input
                   type="email"
                   required
+                  autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="input pl-10"
@@ -148,6 +138,7 @@ export default function LoginPage() {
                 <input
                   type={show ? "text" : "password"}
                   required
+                  autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="input pl-10 pr-10"
@@ -183,25 +174,10 @@ export default function LoginPage() {
             </div>
           </form>
 
-          <div className="card mt-5 p-5">
-            <p className="mb-3 text-xs font-bold uppercase tracking-wider text-slate-400">Demo logins (click to fill)</p>
-            <div className="grid grid-cols-2 gap-2">
-              {DEMO.map((d) => (
-                <button
-                  key={d.email}
-                  type="button"
-                  onClick={() => {
-                    setEmail(d.email);
-                    setPassword(d.pass);
-                  }}
-                  className="rounded-xl border border-slate-200 px-3 py-2 text-left text-[11px] font-medium text-slate-600 transition hover:border-aqua-400 hover:bg-aqua-400/5"
-                >
-                  <span className="block font-bold text-ink-800">{d.label}</span>
-                  {d.email}
-                </button>
-              ))}
-            </div>
-          </div>
+          <p className="mt-6 flex items-center justify-center gap-2 text-[11px] font-medium text-slate-400">
+            <ShieldCheck size={13} className="text-aqua-500" />
+            Access is restricted to authorised Maxhals Forensics users.
+          </p>
         </motion.div>
       </div>
     </div>

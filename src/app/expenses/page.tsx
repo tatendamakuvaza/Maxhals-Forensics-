@@ -3,7 +3,7 @@ import React from "react";
 import { Plus, Download, Trash2, Receipt, TrendingDown } from "lucide-react";
 import { Card, PageHeader, StatCard, Badge } from "@/components/ui";
 import { useStore } from "@/lib/store";
-import { fmtUSD, fmtDate, fmtPct } from "@/lib/format";
+import { fmtUSD, fmtDate, fmtPct, pct } from "@/lib/format";
 import { computePnL } from "@/lib/accounting";
 import { toCSV, downloadFile } from "@/lib/export";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, CartesianGrid, XAxis, YAxis, Legend } from "recharts";
@@ -78,7 +78,7 @@ export default function ExpensesPage() {
       />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatCard label="Total expenses YTD" value={fmtUSD(pnl.totalExpenses, 0)} delta={`${fmtPct((pnl.totalExpenses / pnl.totalIncome) * 100, 0)} of income`} icon={<TrendingDown size={20} />} />
+        <StatCard label="Total expenses YTD" value={fmtUSD(pnl.totalExpenses, 0)} delta={`${fmtPct(pct(pnl.totalExpenses, pnl.totalIncome), 0)} of income`} icon={<TrendingDown size={20} />} />
         <StatCard label="Input VAT claimable" value={fmtUSD(totalVat, 0)} delta="recoverable from ZIMRA" icon={<Receipt size={20} />} />
         <StatCard label="Largest category" value={pnl.expensesByCategory[0]?.category ?? "—"} delta={fmtUSD(pnl.expensesByCategory[0]?.amount ?? 0, 0)} icon={<Receipt size={20} />} />
       </div>

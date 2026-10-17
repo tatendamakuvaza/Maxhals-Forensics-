@@ -3,7 +3,7 @@ import React from "react";
 import { Plus, Download, Wallet, Briefcase, GraduationCap, Banknote, Trash2, CheckCircle2 } from "lucide-react";
 import { Card, PageHeader, StatCard, Badge } from "@/components/ui";
 import { useStore } from "@/lib/store";
-import { fmtUSD, fmtDate, fmtPct } from "@/lib/format";
+import { fmtUSD, fmtDate, fmtPct, pct } from "@/lib/format";
 import { computePnL } from "@/lib/accounting";
 import { toCSV, downloadFile } from "@/lib/export";
 import { IncomeStream, STREAM_LABELS } from "@/lib/types";
@@ -102,9 +102,9 @@ export default function IncomePage() {
               </div>
               <div className="mt-4">
                 <div className="h-2 overflow-hidden rounded-full bg-slate-100">
-                  <div className="h-full rounded-full" style={{ width: `${(v / pnl.totalIncome) * 100}%`, background: COLORS[s] }} />
+                  <div className="h-full rounded-full" style={{ width: `${pct(v, pnl.totalIncome)}%`, background: COLORS[s] }} />
                 </div>
-                <p className="mt-1.5 text-xs font-medium text-slate-500">{fmtPct((v / pnl.totalIncome) * 100)} of total revenue</p>
+                <p className="mt-1.5 text-xs font-medium text-slate-500">{fmtPct(pct(v, pnl.totalIncome))} of total revenue</p>
               </div>
             </Card>
           );

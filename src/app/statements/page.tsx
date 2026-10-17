@@ -3,7 +3,7 @@ import React from "react";
 import { Download, Printer, FileText, Scale, Landmark, ArrowLeftRight, Coins } from "lucide-react";
 import { Card, PageHeader, Badge } from "@/components/ui";
 import { useStore } from "@/lib/store";
-import { fmtUSD, fmtDate } from "@/lib/format";
+import { fmtUSD, fmtDate, pct } from "@/lib/format";
 import { computePnL, computeBalanceSheet, computeCashFlow, computeEquity } from "@/lib/accounting";
 import { exportPDF } from "@/lib/export";
 
@@ -177,7 +177,7 @@ function PnLView({ pnl }: { pnl: ReturnType<typeof computePnL> }) {
           <span className="text-xs font-semibold uppercase tracking-wider text-white/60">Net profit for the period</span>
           <span className="text-2xl font-extrabold text-gold-400">{fmtUSD(pnl.netProfit)}</span>
         </div>
-        <div className="mt-1 text-right text-xs text-white/50">Net profit margin {((pnl.netProfit / pnl.totalIncome) * 100).toFixed(1)}%</div>
+        <div className="mt-1 text-right text-xs text-white/50">Net profit margin {pct(pnl.netProfit, pnl.totalIncome).toFixed(1)}%</div>
       </div>
     </div>
   );
