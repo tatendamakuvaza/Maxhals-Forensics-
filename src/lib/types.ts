@@ -180,6 +180,21 @@ export interface SophieMessage {
   ts: number;
 }
 
+export type SophieTone = "warm" | "formal" | "casual" | "concise";
+
+export interface SophieFact {
+  id: string;
+  key?: string;
+  text: string;
+  createdAt: number;
+}
+
+export interface SophieMemory {
+  preferredName?: string;
+  tone?: SophieTone;
+  facts: SophieFact[];
+}
+
 export interface Settings {
   company: {
     name: string;
@@ -219,6 +234,7 @@ export interface AppData {
   fraudFlags: FraudFlag[];
   tasks: DeptTask[];
   chat: SophieMessage[];
+  sophieMemory?: SophieMemory;
   settings: Settings;
 }
 

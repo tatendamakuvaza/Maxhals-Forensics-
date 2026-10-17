@@ -236,6 +236,9 @@ export function buildSeedData(): AppData {
       { id: id("TSK"), department: "Security", title: "Review CCTV retention policy", assignee: "Bonnie Marimo", due: iso(11, 15), status: "todo", priority: "low" }
     ],
     chat: [],
+    sophieMemory: {
+      facts: []
+    },
     settings: {
       company: {
         name: "Maxhals Forensics",

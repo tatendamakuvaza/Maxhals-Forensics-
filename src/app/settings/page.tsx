@@ -133,20 +133,30 @@ export default function SettingsPage() {
         <Card>
           <div className="mb-4 flex items-center gap-3">
             <div className="rounded-2xl bg-violet-400/15 p-2.5 text-violet-500"><Bot size={19} /></div>
-            <h3 className="text-sm font-extrabold text-ink-900">Sophie AI configuration</h3>
+            <h3 className="text-sm font-extrabold text-ink-900">Sophie AI & Voice configuration</h3>
           </div>
           <div className="space-y-3">
             <div className="rounded-xl border border-slate-100 p-3.5">
-              <p className="text-xs font-bold text-ink-900">Engine</p>
+              <p className="text-xs font-bold text-ink-900">Conversational & Voice Engine</p>
               <p className="mt-1 text-[11px] text-slate-500">
-                MHF-Brain v2.1 — finance-aware local engine (always on). Add <strong>OPENAI_API_KEY</strong> in Vercel env vars to
-                augment Sophie with GPT-quality conversation; she falls back to the local engine automatically.
+                MHF-Brain v2.2 — finance-aware local engine with persistent memory, browser voice calls, and live mic dictation.
+                Add <strong>OPENAI_API_KEY</strong> in Vercel env vars for GPT conversation and Whisper audio-note transcription at{" "}
+                <code>/api/transcribe</code> (optional: <strong>OPENAI_MODEL</strong>, <strong>OPENAI_TRANSCRIBE_MODEL</strong>).
+              </p>
+            </div>
+            <div className="rounded-xl border border-slate-100 p-3.5">
+              <p className="text-xs font-bold text-ink-900">Twilio Phone Calls & Memory</p>
+              <p className="mt-1 text-[11px] text-slate-500">
+                Point your Twilio Voice number webhook at <code>/api/sophie/voice</code> (responds at <code>/api/sophie/voice/respond</code>;
+                optional <strong>PUBLIC_BASE_URL</strong>). Learned memory currently holds{" "}
+                <strong>{data.sophieMemory?.facts?.length ?? 0}</strong> saved notes (preferred name:{" "}
+                <strong>{data.sophieMemory?.preferredName || form.company.owner.split(" ")[0]}</strong>).
               </p>
             </div>
             <div className="rounded-xl border border-slate-100 p-3.5">
               <p className="text-xs font-bold text-ink-900">Knowledge scope</p>
               <div className="mt-2 flex flex-wrap gap-1.5">
-                {["General ledger", "Invoices", "Cash flow", "VAT/NSSA/PAYE", "Payroll", "Fraud ML", "Departments"].map((k) => (
+                {["General ledger", "Invoices", "Cash flow", "VAT/NSSA/PAYE", "Payroll", "Fraud ML", "Departments", "Learned Memory", "Voice & TwiML"].map((k) => (
                   <Badge key={k} color="aqua">{k}</Badge>
                 ))}
               </div>
@@ -175,7 +185,7 @@ export default function SettingsPage() {
             ))}
           </div>
           <p className="mt-3 text-[10px] text-slate-400">
-            Demo passwords are documented in README. Production: connect an identity provider (e.g. Clerk/Auth0) before going live with real data.
+            Role-based accounts are managed by the suite administrator. For production deployments, connect an identity provider (e.g. Clerk/Auth0).
           </p>
         </Card>
 

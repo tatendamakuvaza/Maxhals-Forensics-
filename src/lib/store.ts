@@ -1,7 +1,7 @@
 "use client";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { AppData, FraudFlag, SophieMessage } from "./types";
+import { AppData, FraudFlag, SophieMemory, SophieMessage } from "./types";
 import { buildSeedData } from "./seed";
 import { runFraudDetection } from "./ml/fraud";
 
@@ -14,6 +14,7 @@ interface AppState {
   update: (fn: (d: AppData) => void) => void;
   retrainFraud: () => FraudFlag[];
   addChat: (m: SophieMessage) => void;
+  setSophieMemory: (mem: SophieMemory) => void;
   resetData: () => void;
   eraseTransactions: () => void;
 }
@@ -51,12 +52,20 @@ export const useStore = create<AppState>()(
         get().update((d) => {
           d.chat.push(m);
         }),
+      setSophieMemory: (mem) =>
+        get().update((d) => {
+          d.sophieMemory = {
+            ...mem,
+            facts: Array.isArray(mem?.facts) ? mem.facts : []
+          };
+        }),
       resetData: () => set({ data: buildSeedData() }),
       eraseTransactions: () => get().update((d) => {
-        // Keep the people who can sign in and the company profile; clear every
-        // business record so the dashboard and all statements open at zero.
+        // Keep the people who can sign in, the company profile, and Sophie's learned memory;
+        // clear every business record so the dashboard and all statements open at zero.
         const users = d.users;
         const settings = d.settings;
+        const sophieMemory = d.sophieMemory ?? { facts: [] };
         d.clients = [];
         d.income = [];
         d.expenses = [];
@@ -71,6 +80,7 @@ export const useStore = create<AppState>()(
         d.chat = [];
         d.bankAccounts = [];
         d.users = users;
+        d.sophieMemory = sophieMemory;
         d.settings = { ...settings, nextInvoiceNo: 1 };
       })
     }),
@@ -79,8 +89,15 @@ export const useStore = create<AppState>()(
       storage: createJSONStorage(() => localStorage),
       partialize: (s) => ({ data: s.data, sessionUser: s.sessionUser }),
       onRehydrateStorage: () => (state) => {
-        if (state) {
+        if (state && state.data) {
           state.hydrated = true;
+          state.data.sophieMemory = {
+            ...(state.data.sophieMemory ?? {}),
+            facts: Array.isArray(state.data.sophieMemory?.facts) ? state.data.sophieMemory!.facts : []
+          };
+          if (!Array.isArray(state.data.chat)) {
+            state.data.chat = [];
+          }
           if (state.data.fraudFlags.length === 0) {
             state.data.fraudFlags = runFraudDetection(state.data);
           }
