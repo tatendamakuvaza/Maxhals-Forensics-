@@ -25,7 +25,7 @@ export default function BankingPage() {
     .sort((a, b) => b.date.localeCompare(a.date));
 
   const unmatched = data.bankTxns.filter((t) => !t.matched).length;
-  const recPct = Math.round(((data.bankTxns.length - unmatched) / data.bankTxns.length) * 100);
+  const recPct = data.bankTxns.length ? Math.round(((data.bankTxns.length - unmatched) / data.bankTxns.length) * 100) : 0;
 
   const autoMatch = () => {
     update((d) => {

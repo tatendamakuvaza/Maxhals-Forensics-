@@ -8,7 +8,7 @@ import {
 import { TrendingUp, Brain, Download, Sparkles, Activity, PieChart as PieIcon, BarChart3, Radar as RadarIcon } from "lucide-react";
 import { Card, PageHeader, StatCard, Badge } from "@/components/ui";
 import { useStore } from "@/lib/store";
-import { fmtUSD, fmtCompact, fmtPct } from "@/lib/format";
+import { fmtUSD, fmtCompact, fmtPct, pct } from "@/lib/format";
 import { computePnL, computeBalanceSheet, computeCashFlow, revenueMix, receivablesAging, invoiceTotals } from "@/lib/accounting";
 import { downloadFile, toCSV } from "@/lib/export";
 import Link from "next/link";
@@ -102,6 +102,11 @@ export default function AnalyticsPage() {
     return Math.round(clientConc.reduce((a, b) => a + (b.value / total) ** 2, 0) * 10000);
   })();
 
+  const meanMonthlyProfit = pnl.monthly.length ? pnl.netProfit / pnl.monthly.length : 0;
+  const profitVolatility = pnl.monthly.length
+    ? Math.sqrt(pnl.monthly.reduce((a, m) => a + (m.profit - meanMonthlyProfit) ** 2, 0) / pnl.monthly.length)
+    : 0;
+
   const exportAnalytics = () =>
     downloadFile(
       toCSV(
@@ -133,8 +138,8 @@ export default function AnalyticsPage() {
 
       {/* Stat row */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Avg monthly profit" value={fmtUSD(pnl.netProfit / Math.max(1, pnl.monthly.length), 0)} delta={`${pnl.monthly.length} periods`} icon={<TrendingUp size={20} />} />
-        <StatCard label="Profit volatility (σ)" value={fmtUSD(Math.sqrt(pnl.monthly.reduce((a, m) => a + (m.profit - pnl.netProfit / pnl.monthly.length) ** 2, 0) / Math.max(1, pnl.monthly.length)), 0)} hint="monthly profit std-dev" icon={<Activity size={20} />} />
+        <StatCard label="Avg monthly profit" value={fmtUSD(meanMonthlyProfit, 0)} delta={`${pnl.monthly.length} periods`} icon={<TrendingUp size={20} />} />
+        <StatCard label="Profit volatility (σ)" value={fmtUSD(profitVolatility, 0)} hint="monthly profit std-dev" icon={<Activity size={20} />} />
         <StatCard label="Client concentration (HHI)" value={String(hhi)} delta={hhi > 2500 ? "high concentration" : "diversified"} icon={<PieIcon size={20} />} />
         <StatCard label="Collection efficiency" value={fmtPct((funnel[1].value / Math.max(1, funnel[0].value)) * 100, 1)} hint={`${fmtUSD(funnel[3].value, 0)} overdue`} icon={<BarChart3 size={20} />} />
       </div>
@@ -348,7 +353,7 @@ export default function AnalyticsPage() {
           <div className="mt-4 rounded-2xl bg-gradient-to-r from-aqua-400/10 to-gold-400/10 p-4">
             <p className="text-xs font-bold text-ink-900">📌 Analyst note</p>
             <p className="mt-1 text-xs leading-relaxed text-slate-600">
-              Forensic advisory contributes {fmtPct((pnl.incomeByStream.forensic / pnl.totalIncome) * 100, 0)} of revenue — protect against
+              Forensic advisory contributes {fmtPct(pct(pnl.incomeByStream.forensic, pnl.totalIncome), 0)} of revenue — protect against
               concentration by growing seminar income. Collection efficiency at {fmtPct((funnel[1].value / Math.max(1, funnel[0].value)) * 100, 0)} leaves{" "}
               {fmtUSD(funnel[2].value, 0)} in working capital — tighten 30-day terms and automate reminders.
             </p>

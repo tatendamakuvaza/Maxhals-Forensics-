@@ -11,7 +11,7 @@ import {
 } from "recharts";
 import { Card, PageHeader, StatCard, Badge } from "@/components/ui";
 import { useStore } from "@/lib/store";
-import { fmtCompact, fmtUSD, fmtDate, fmtPct } from "@/lib/format";
+import { fmtCompact, fmtUSD, fmtDate, fmtPct, pct } from "@/lib/format";
 import {
   computePnL, computeBalanceSheet, computeCashFlow, computeEquity, revenueMix, receivablesAging, invoiceTotals
 } from "@/lib/accounting";
@@ -32,23 +32,36 @@ export default function DashboardPage() {
   const owed = openInvoices.reduce((a, i) => a + invoiceTotals(i).total - i.paidAmount, 0);
   const taxDue = data.taxes.filter((t) => t.paidAmount < t.amount).reduce((a, b) => a + b.amount - b.paidAmount, 0);
   const openFlags = data.fraudFlags.filter((f) => f.status === "open");
-  const netMargin = (pnl.netProfit / pnl.totalIncome) * 100;
+  const hasBooks = data.income.length + data.expenses.length + data.invoices.length + data.bankTxns.length > 0;
+  const netMargin = pct(pnl.netProfit, pnl.totalIncome);
   const profitTrend = pnl.monthly.length > 1
-    ? ((pnl.monthly[pnl.monthly.length - 1].profit - pnl.monthly[pnl.monthly.length - 2].profit) / Math.abs(pnl.monthly[pnl.monthly.length - 2].profit)) * 100
+    ? pct(pnl.monthly[pnl.monthly.length - 1].profit - pnl.monthly[pnl.monthly.length - 2].profit, Math.abs(pnl.monthly[pnl.monthly.length - 2].profit))
     : 0;
+  const totalInvoiced = data.invoices.reduce((a, i) => a + invoiceTotals(i).total, 0);
+  const totalCollected = data.invoices.reduce((a, i) => a + i.paidAmount, 0);
+  const activeStreams = Object.values(pnl.incomeByStream).filter((v) => v > 0).length;
 
   const gauge = [
     { name: "Margin", value: Math.max(0, Math.min(100, netMargin * 1.4)), fill: "#33d6c2" }
   ];
 
-  const radar = [
-    { subject: "Liquidity", A: Math.min(100, (bs.assets[0].amount / Math.max(1, pnl.totalExpenses)) * 240), fullMark: 100 },
-    { subject: "Profitability", A: Math.min(100, netMargin * 1.6), fullMark: 100 },
-    { subject: "Collections", A: Math.min(100, (1 - owed / Math.max(1, pnl.totalIncome)) * 100), fullMark: 100 },
-    { subject: "Compliance", A: Math.max(0, 100 - (taxDue / 100) * 4), fullMark: 100 },
-    { subject: "Growth", A: Math.min(100, 55 + profitTrend), fullMark: 100 },
-    { subject: "Diversity", A: 72, fullMark: 100 }
-  ];
+  const radar = hasBooks
+    ? [
+        { subject: "Liquidity", A: Math.min(100, (bs.assets[0].amount / Math.max(1, pnl.totalExpenses)) * 240), fullMark: 100 },
+        { subject: "Profitability", A: Math.max(0, Math.min(100, netMargin * 1.6)), fullMark: 100 },
+        { subject: "Collections", A: Math.max(0, Math.min(100, pct(totalCollected, totalInvoiced))), fullMark: 100 },
+        { subject: "Compliance", A: Math.max(0, 100 - (taxDue / 100) * 4), fullMark: 100 },
+        { subject: "Growth", A: Math.max(0, Math.min(100, 55 + profitTrend)), fullMark: 100 },
+        { subject: "Diversity", A: Math.round((activeStreams / 3) * 100), fullMark: 100 }
+      ]
+    : [
+        { subject: "Liquidity", A: 0, fullMark: 100 },
+        { subject: "Profitability", A: 0, fullMark: 100 },
+        { subject: "Collections", A: 0, fullMark: 100 },
+        { subject: "Compliance", A: 0, fullMark: 100 },
+        { subject: "Growth", A: 0, fullMark: 100 },
+        { subject: "Diversity", A: 0, fullMark: 100 }
+      ];
 
   return (
     <div>

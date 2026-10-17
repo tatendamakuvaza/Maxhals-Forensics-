@@ -102,15 +102,19 @@ export interface BalanceSheet {
 
 export function computeBalanceSheet(data: AppData): BalanceSheet {
   const pnl = computePnL(data);
+  const ledger = new Map(accountBalances(data).map((a) => [a.code, a.balance]));
   const bankBalance =
     data.bankAccounts.reduce((a, b) => a + b.openingBalance, 0) +
     data.bankTxns.reduce((a, b) => a + b.amount, 0);
-  const cashInHand = 2150;
+  // Petty cash and fixed assets come from the ledger, not hard-coded opening balances.
+  const cashInHand = Math.max(0, ledger.get("1000") ?? 0);
   const receivables = data.income
     .filter((i) => !i.received)
     .reduce((a, b) => a + b.amount + b.vatCharged, 0);
-  const equipment =
-    (data.expenses.filter((e) => e.category === "Equipment & Fixtures").reduce((a, b) => a + b.amount, 0)) + 6400;
+  const equipmentExpense = data.expenses
+    .filter((e) => e.category === "Equipment & Fixtures")
+    .reduce((a, b) => a + b.amount, 0);
+  const equipment = Math.max(0, ledger.get("1200") ?? 0, equipmentExpense);
   const inputVat = data.expenses.reduce((a, b) => a + b.vatClaimable, 0);
   const outputVat = data.income.reduce((a, b) => a + b.vatCharged, 0);
   const vatNet = Math.round((outputVat - inputVat) * 100) / 100;
@@ -125,19 +129,17 @@ export function computeBalanceSheet(data: AppData): BalanceSheet {
   const unpaidTaxes = data.taxes
     .filter((t) => t.paidAmount < t.amount)
     .reduce((a, b) => a + (b.amount - b.paidAmount), 0);
-  const payables = data.income
-    .filter((i) => !i.received)
-    .reduce((a, b) => a + 0, 0);
 
   const liabilities = [
-    { label: "Trade and other payables", amount: Math.round(payables * 100) / 100 },
+    { label: "Trade and other payables", amount: 0 },
     { label: "VAT, NSSA & PAYE payable", amount: Math.round(unpaidTaxes * 100) / 100 },
     { label: "Output VAT control (net)", amount: Math.round(Math.max(0, vatNet - unpaidTaxes) * 100) / 100 }
   ];
 
   const capitalIn = data.equity.filter((e) => e.type === "capital" || e.type === "adjustment").reduce((a, b) => a + b.amount, 0);
   const drawings = data.equity.filter((e) => e.type === "drawing").reduce((a, b) => a + b.amount, 0);
-  const retained = 12800; // brought forward from FY2025
+  // No brought-forward balance is assumed: a clean set of books opens at zero.
+  const retained = 0;
   const equity = [
     { label: "Owner's capital", amount: capitalIn },
     { label: "Retained earnings (b/f)", amount: retained },
